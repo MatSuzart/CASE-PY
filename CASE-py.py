@@ -1,62 +1,57 @@
 import requests
-import sys
 
-# Substitua 'SEU_KEY' e 'SEU_TOKEN' pelos valores reais obtidos na sua conta do Trello
+# Substitua 'SEU_KEY', 'SEU_TOKEN' e 'SEU_BOARD_ID' pelos valores reais obtidos na sua conta do Trello
 TRELLO_API_KEY = ''
 TRELLO_TOKEN = ''
 BOARD_ID = ''
 
-def get_trello_cards():
-    # URL da API do Trello para obter as listas do quadro
-    url = f'https://api.trello.com/1/boards/{BOARD_ID}/lists'
+# URL da API do Trello para obter as listas do board
+url_lists = f'https://api.trello.com/1/boards/{BOARD_ID}/lists'
 
-    # Parâmetros da consulta
-    params = {
-        'key': TRELLO_API_KEY,
-        'token': TRELLO_TOKEN,
-    }
+# Parâmetros da consulta para obter as listas
+params_lists = {
+    'key': TRELLO_API_KEY,
+    'token': TRELLO_TOKEN,
+}
 
-    # Fazendo a chamada à API do Trello para obter as listas
-    response = requests.get(url, params=params)
+# Fazendo a chamada à API do Trello para obter as listas
+response_lists = requests.get(url_lists, params=params_lists)
 
-    # Verificar se a solicitação foi bem-sucedida
-    if response.status_code != 200:
-        print(f'Erro na solicitação: {response.status_code}')
-        sys.exit()
+# Verificar se a solicitação foi bem-sucedida
+if response_lists.status_code != 200:
+    print(f'Erro na solicitação de listas: {response_lists.status_code}')
+    print(response_lists.text)  # Exibir a resposta completa para diagnóstico
+else:
+    # Tentar converter a resposta para JSON
+    lists = response_lists.json()
 
-    try:
-        # Tentar converter a resposta para JSON
-        lists = response.json()
-    except requests.exceptions.JSONDecodeError:
-        print('Erro ao decodificar a resposta JSON.')
-        sys.exit()
-
-    # Iterando sobre as listas do quadro
+    # Iterando sobre as listas do board
     for trello_list in lists:
         list_id = trello_list['id']
-        list_name = trello_list['name']
 
         # URL da API do Trello para obter os cartões da lista
-        cards_url = f'https://api.trello.com/1/lists/{list_id}/cards'
+        url_cards = f'https://api.trello.com/1/lists/{list_id}/cards'
 
-        # Fazendo a chamada à API do Trello para obter os cartões
-        cards_response = requests.get(cards_url, params=params)
+        # Parâmetros da consulta para obter os cartões da lista
+        params_cards = {
+            'key': TRELLO_API_KEY,
+            'token': TRELLO_TOKEN,
+        }
+
+        # Fazendo a chamada à API do Trello para obter os cartões da lista
+        response_cards = requests.get(url_cards, params=params_cards)
 
         # Verificar se a solicitação foi bem-sucedida
-        if cards_response.status_code != 200:
-            print(f'Erro na solicitação de cartões: {cards_response.status_code}')
-            sys.exit()
+        if response_cards.status_code != 200:
+            print(f'Erro na solicitação de cartões: {response_cards.status_code}')
+            print(response_cards.text)  # Exibir a resposta completa para diagnóstico
+        else:
+            # Tentar converter a resposta para JSON
+            cards = response_cards.json()
 
-        try:
-            # Tentar converter a resposta dos cartões para JSON
-            cards = cards_response.json()
-        except requests.exceptions.JSONDecodeError:
-            print('Erro ao decodificar a resposta JSON dos cartões.')
-            sys.exit()
-
-        print(cards)
-
-    print('Operação concluída com sucesso.')
-
-# Chamar a função para obter os cartões
-get_trello_cards()
+            # Iterando sobre os cartões e imprimindo os nomes
+            for card in cards:
+                 print(f'Nome do cartão: {card["name"]}')
+                 print(f'Descrição do cartão: {card["desc"]}')
+                 print(f'Data de última atividade do cartão: {card["dateLastActivity"]}')
+                 print('-' * 30)
