@@ -2,9 +2,9 @@ import requests
 import csv
 
 # Substitua 'SEU_KEY', 'SEU_TOKEN' e 'SEU_BOARD_ID' pelos valores reais obtidos na sua conta do Trello
-TRELLO_API_KEY = '63c2f2f9e4fde63d03c8ba7eb09893b2'
-TRELLO_TOKEN = 'ATTA7c4cfe63571b27390c419eb4e352399c3aa7a45b08ec503d68419f932a51ca154C1E902E'
-BOARD_ID = '5f87c7d57c0289716f1a99f6'
+TRELLO_API_KEY = ''
+TRELLO_TOKEN = ''
+BOARD_ID = ''
 
 # URL da API do Trello para obter as listas do board
 # URL da API do Trello para obter as listas do board
