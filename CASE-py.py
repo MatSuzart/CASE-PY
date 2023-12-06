@@ -1,10 +1,12 @@
 import requests
+import csv
 
 # Substitua 'SEU_KEY', 'SEU_TOKEN' e 'SEU_BOARD_ID' pelos valores reais obtidos na sua conta do Trello
-TRELLO_API_KEY = ''
-TRELLO_TOKEN = ''
-BOARD_ID = ''
+TRELLO_API_KEY = '63c2f2f9e4fde63d03c8ba7eb09893b2'
+TRELLO_TOKEN = 'ATTA7c4cfe63571b27390c419eb4e352399c3aa7a45b08ec503d68419f932a51ca154C1E902E'
+BOARD_ID = '5f87c7d57c0289716f1a99f6'
 
+# URL da API do Trello para obter as listas do board
 # URL da API do Trello para obter as listas do board
 url_lists = f'https://api.trello.com/1/boards/{BOARD_ID}/lists'
 
@@ -25,33 +27,47 @@ else:
     # Tentar converter a resposta para JSON
     lists = response_lists.json()
 
-    # Iterando sobre as listas do board
-    for trello_list in lists:
-        list_id = trello_list['id']
+    # Abrir o arquivo CSV para escrita
+    with open('dados_trello.csv', mode='w', newline='', encoding='utf-8') as file:
+        # Criar um objeto CSV writer
+        csv_writer = csv.writer(file)
 
-        # URL da API do Trello para obter os cartões da lista
-        url_cards = f'https://api.trello.com/1/lists/{list_id}/cards'
+        # Escrever o cabeçalho do CSV
+        csv_writer.writerow(['Nome do Cartão', 'Descrição do Cartão', 'Data de Última Atividade'])
 
-        # Parâmetros da consulta para obter os cartões da lista
-        params_cards = {
-            'key': TRELLO_API_KEY,
-            'token': TRELLO_TOKEN,
-        }
+        # Iterando sobre as listas do board
+        for trello_list in lists:
+            list_id = trello_list['id']
 
-        # Fazendo a chamada à API do Trello para obter os cartões da lista
-        response_cards = requests.get(url_cards, params=params_cards)
+            # URL da API do Trello para obter os cartões da lista
+            url_cards = f'https://api.trello.com/1/lists/{list_id}/cards'
 
-        # Verificar se a solicitação foi bem-sucedida
-        if response_cards.status_code != 200:
-            print(f'Erro na solicitação de cartões: {response_cards.status_code}')
-            print(response_cards.text)  # Exibir a resposta completa para diagnóstico
-        else:
-            # Tentar converter a resposta para JSON
-            cards = response_cards.json()
+            # Parâmetros da consulta para obter os cartões da lista
+            params_cards = {
+                'key': TRELLO_API_KEY,
+                'token': TRELLO_TOKEN,
+            }
 
-            # Iterando sobre os cartões e imprimindo os nomes
-            for card in cards:
-                 print(f'Nome do cartão: {card["name"]}')
-                 print(f'Descrição do cartão: {card["desc"]}')
-                 print(f'Data de última atividade do cartão: {card["dateLastActivity"]}')
-                 print('-' * 30)
+            # Fazendo a chamada à API do Trello para obter os cartões da lista
+            response_cards = requests.get(url_cards, params=params_cards)
+
+            # Verificar se a solicitação foi bem-sucedida
+            if response_cards.status_code != 200:
+                print(f'Erro na solicitação de cartões: {response_cards.status_code}')
+                print(response_cards.text)  # Exibir a resposta completa para diagnóstico
+            else:
+                # Tentar converter a resposta para JSON
+                cards = response_cards.json()
+
+                # Iterando sobre os cartões e escrevendo no CSV
+                for card in cards:
+                    # Escrever os dados no CSV
+                    csv_writer.writerow([card["name"], card["desc"], card["dateLastActivity"]])
+
+                    # Imprimir informações na tela (opcional)
+                    print(f'Nome do cartão: {card["name"]}')
+                    print(f'Descrição do cartão: {card["desc"]}')
+                    print(f'Data de última atividade do cartão: {card["dateLastActivity"]}')
+                    print('-' * 30)
+
+print("Dados salvos com sucesso no arquivo 'dados_trello.csv'")
